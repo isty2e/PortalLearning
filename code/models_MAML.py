@@ -21,6 +21,7 @@ class DTI_model_MAML(nn.Module):
         },
         model=None,
         chem=None,
+        test_mode=False,
     ):
         super(DTI_model_MAML, self).__init__()
         # -------------------------------------------
@@ -47,9 +48,13 @@ class DTI_model_MAML(nn.Module):
             contextpred_config["emb_dim"], prot_embed_dim
         )
         self.interaction_pooler = EmbeddingTransform(
-            contextpred_config["emb_dim"] + prot_embed_dim, 128, 64, 0.1
+            contextpred_config["emb_dim"] + prot_embed_dim,
+            128,
+            64,
+            0.1,
+            test_mode=test_mode,
         )
-        self.binary_predictor = EmbeddingTransform(64, 64, 2, 0.2)
+        self.binary_predictor = EmbeddingTransform(64, 64, 2, 0.2, test_mode=test_mode)
 
     def forward(self, batch_protein_tokenized, batch_chem_graphs, **kwargs):
         # ---------------protein embedding ready -------------
@@ -111,7 +116,9 @@ class EmbeddingTransform2(nn.Module):
 
 
 class EmbeddingTransform(nn.Module):
-    def __init__(self, input_size, hidden_size, out_size, dropout_p=0.1):
+    def __init__(
+        self, input_size, hidden_size, out_size, dropout_p=0.1, test_mode=False
+    ):
         super(EmbeddingTransform, self).__init__()
         self.dropout = nn.Dropout(p=dropout_p)
         self.transform = nn.Sequential(
@@ -121,9 +128,11 @@ class EmbeddingTransform(nn.Module):
             nn.Linear(hidden_size, out_size),
             nn.BatchNorm1d(out_size),
         )
+        self.test_mode = test_mode
 
     def forward(self, embedding):
-        # torch.manual_seed(13)
+        if self.test_mode:
+            torch.manual_seed(13)
         embedding = self.dropout(embedding)
         hidden = self.transform(embedding)
         return hidden

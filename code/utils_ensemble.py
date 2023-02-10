@@ -4,13 +4,12 @@ import torch
 from torch import nn
 from torch_geometric.data import DataLoader
 
-from model_Yang_test import GNN
-from models_MAML_test import DTI_model_MAML
+from model_Yang import GNN
+from models_MAML import DTI_model_MAML
 
 warnings.filterwarnings("ignore")
 
 
-# -------------------------------
 class portal_four_universe_Ensemble(nn.Module):
     def __init__(self, args, protein_descriptor):
         super(portal_four_universe_Ensemble, self).__init__()
@@ -21,13 +20,22 @@ class portal_four_universe_Ensemble(nn.Module):
             num_layer=5, emb_dim=300, JK="last", drop_ratio=0.5, gnn_type="gin"
         )
         self.model1 = DTI_model_MAML(
-            all_config=args, model=protein_descriptor, chem=chem_descriptor
+            all_config=args,
+            model=protein_descriptor,
+            chem=chem_descriptor,
+            test_mode=True,
         )
         self.model2 = DTI_model_MAML(
-            all_config=args, model=protein_descriptor, chem=chem_descriptor
+            all_config=args,
+            model=protein_descriptor,
+            chem=chem_descriptor,
+            test_mode=True,
         )
         self.model3 = DTI_model_MAML(
-            all_config=args, model=protein_descriptor, chem=chem_descriptor
+            all_config=args,
+            model=protein_descriptor,
+            chem=chem_descriptor,
+            test_mode=True,
         )
         self.model1.load_state_dict(torch.load(path + "model_chosen/model1.dat"))
         self.model2.load_state_dict(torch.load(path + "model_chosen/model2.dat"))
@@ -58,7 +66,12 @@ class portal_four_universe_single(nn.Module):
         # .......... LOAD DISAE ..........
         path = "../data/illuminating/"
         chem_descriptor = GNN(
-            num_layer=5, emb_dim=300, JK="last", drop_ratio=0.5, gnn_type="gin"
+            num_layer=5,
+            emb_dim=300,
+            JK="last",
+            drop_ratio=0.5,
+            gnn_type="gin",
+            test_mode=True,
         )
         self.model3 = DTI_model_MAML(
             all_config=args, model=protein_descriptor, chem=chem_descriptor

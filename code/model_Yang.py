@@ -69,8 +69,6 @@ class GINConv(MessagePassing):  # from ContextPred
 
 class GNN(torch.nn.Module):  # from Yang
     """
-
-
     Args:
         num_layer (int): the number of GNN layers
         emb_dim (int): dimensionality of embeddings
@@ -81,10 +79,9 @@ class GNN(torch.nn.Module):  # from Yang
 
     Output:
         node representations
-
     """
 
-    def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin"):
+    def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin", test_mode=False):
         super(GNN, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -125,6 +122,8 @@ class GNN(torch.nn.Module):  # from Yang
         self.batch_norms = torch.nn.ModuleList()
         for layer in range(num_layer):
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
+        
+        self.test_mode = test_mode
 
     # def forward(self, x, edge_index, edge_attr):
     def forward(self, *argv):
@@ -153,10 +152,12 @@ class GNN(torch.nn.Module):  # from Yang
             # h = F.dropout(F.relu(h), self.drop_ratio, training = self.training)
             if layer == self.num_layer - 1:
                 # remove relu for the last layer
-                # torch.manual_seed(66)
+                if self.test_mode:
+                    torch.manual_seed(66)
                 h = F.dropout(h, self.drop_ratio, training=self.training)
             else:
-                # torch.manual_seed(13)
+                if self.test_mode:
+                    torch.manual_seed(13)
                 h = F.dropout(F.relu(h), self.drop_ratio, training=self.training)
             h_list.append(h)
 
