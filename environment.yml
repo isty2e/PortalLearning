@@ -1,0 +1,24 @@
+name: portalcg
+channels:
+  - pytorch
+  - pyg
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - jupyter
+  - black
+  - black-jupyter
+  - isort
+  - pickle5
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - cudatoolkit=11.2
+  - pytorch::pytorch
+  - pyg::pyg
+  - transformers
+  - rdkit
+  
